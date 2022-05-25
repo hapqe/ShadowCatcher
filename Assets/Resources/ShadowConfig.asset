@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f66da34728cb9b74c95d6e22a13b9eb2, type: 3}
+  m_Name: ShadowConfig
+  m_EditorClassIdentifier: 
+  shadowShader: {fileID: 0}
+  positionMaterial: {fileID: 2100000, guid: 6ec7805f454eb044bb6583463737b337, type: 2}
+  positionsMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
