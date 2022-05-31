@@ -8,6 +8,9 @@ using UnityEngine;
 public class ShadowToEdges : MonoBehaviour
 {
     [SerializeField]
+    GameObject edgeColliderPrefab;
+    
+    [SerializeField]
     GameObject shadowCatchers;
 
     [SerializeField]
@@ -24,24 +27,19 @@ public class ShadowToEdges : MonoBehaviour
     [SerializeField]
     GameObject colliderParent;
 
-    List <EdgeCollider2D> edgeColliders = new List<EdgeCollider2D>();
-
-    List<EdgeCollider2D> colliders = new List<EdgeCollider2D>();
+    Rigidbody2D[] collidersRbs;
 
     Line[] lines;
     
     private void Awake()
     {
         meshes = shadowCatchers.GetComponentsInChildren<MeshFilter>();
+    }
 
-        var lineCount = meshes[0].sharedMesh.GetIndices(0).Length;
-
-        for (int i = 0; i < lineCount; i++)
-        {
-            var collider = colliderParent.AddComponent<EdgeCollider2D>();
-            collider.points = new Vector2[2];
-            colliders.Add(collider);
-        }
+    private void Start()
+    {
+        CalculateLines(meshes[0]);
+        collidersRbs = AddColliders().ToArray();
     }
 
     List<Vector3> drawnVertices = new List<Vector3>(20);
@@ -75,8 +73,9 @@ public class ShadowToEdges : MonoBehaviour
             return $"{start} -> {end}";
         }
     }
+
     
-    void CalculateLines(MeshFilter mesh, int index){
+    void CalculateLines(MeshFilter mesh){
         
         var indices = mesh.sharedMesh.triangles;
         var vertices = mesh.sharedMesh.vertices;
@@ -122,39 +121,45 @@ public class ShadowToEdges : MonoBehaviour
     }
 
     void CalculateProjection(Transform transform) {
-        foreach (var line in lines)
-        {
-            var v1 = new Vector4(line.start.x, line.start.y, line.start.z, 1.0f);
-            v1 = transform.localToWorldMatrix * v1;
-            v1 = CutWithPlane(planeTransform, v1, lightTransform);
-            var v2 = new Vector4(line.end.x, line.end.y, line.end.z, 1.0f);
-            v2 = transform.localToWorldMatrix * v2;
-            v2 = CutWithPlane(planeTransform, v2, lightTransform);
-
-            Debug.DrawLine(v1, v2, Color.red);
-        }
+        // void CalculateVertex()
         
-        // for(int i = 0; i < old.Length; i++) {
-        //     var vertex = new Vector4(old[i].x, old[i].y, old[i].z, 1.0f);
-        //     vertex = mesh.transform.localToWorldMatrix * vertex;
+        for (int i = 0; i < lines.Length; i++)
+        {
+            ref var line = ref lines[i];
 
-        //     vertices[i] = CutWithPlane(planeTransform, vertex, lightTransform.position);
-        // }
+            var start = Project(transform, line.start);
+            var end = Project(transform, line.end);
+
+            var rigidbody = collidersRbs[i];
+
+            rigidbody.position = start;
+
+            var direction = end - start;
+            var magnitude = direction.magnitude;
+            rigidbody.rotation = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            rigidbody.transform.localScale = Vector3.one * magnitude;
+
+            // Debug.DrawLine(start, end);
+
+        }
+
+        Vector3 Project(Transform transform, Vector3 point)
+        {
+            var p = new Vector4(point.x, point.y, point.z, 1.0f);
+            p = transform.localToWorldMatrix * p;
+            return CutWithPlane(planeTransform, p, lightTransform);
+        }
     }
 
     Vector3 CutWithPlane(Transform planeTransform, Vector4 point, Transform light) {
         var lightPos = light.position;
-        var transformedLight = planeTransform.localToWorldMatrix * new Vector4(lightPos.x, lightPos.y, lightPos.z, 1.0f);
-
-        Debug.DrawRay(transformedLight, Vector3.up, Color.green);
+        var transformedLight = planeTransform.worldToLocalMatrix * new Vector4(lightPos.x, lightPos.y, lightPos.z, 1.0f);
         
-        point = planeTransform.localToWorldMatrix * point;
-
-        Debug.DrawRay(point, Vector3.up, Color.red);
+        point = planeTransform.worldToLocalMatrix * new Vector4(point.x, point.y, point.z, 1.0f);
 
         point = CutOn0Plane(point, transformedLight);
 
-        point = planeTransform.worldToLocalMatrix * point;
+        point = planeTransform.localToWorldMatrix * new Vector4(point.x, point.y, point.z, 1.0f);
 
         return point;
     }
@@ -168,12 +173,18 @@ public class ShadowToEdges : MonoBehaviour
         return new Vector4(x, 0.0f, z, 1.0f);
     }
 
-    private void Start()
-    {
-        CalculateLines(meshes[0], 0);
+
+    IEnumerable<Rigidbody2D> AddColliders() {
+        foreach (var line in lines)
+        {
+            yield return Instantiate(edgeColliderPrefab, colliderParent.transform).GetComponent<Rigidbody2D>();
+        }
     }
+
     private void Update()
     {
         CalculateProjection(meshes[0].transform);
     }
+
+    
 }
