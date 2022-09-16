@@ -152,20 +152,27 @@ public class ShadowCatcher : MonoBehaviour
 
     Vector3 EdgeEdgeIntersection(Vector3 a1, Vector3 a2, Vector3 b1, Vector3 b2)
     {
-        // draw both edges
-        Gizmos.DrawLine(a1, a2);
-        Gizmos.DrawLine(b1, b2);
         
-        var OC = a1 - b1;
+        // draw both lines
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(a1, a2);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(b1, b2);
+
+
+        var O1 = a1;
+        var O2 = b1;
+        var Ot = O2 - O1;
 
         var D1 = a2 - a1;
-        var D2 = -b2 + b1;
+        var D2 = b2 - b1;
 
         var det = D1.x * D2.y - D1.y * D2.x;
-        var t1 = (OC.x * D2.y - OC.y * D1.y) / det;
+        var t = (Ot.x * D2.y - Ot.y * D2.x) / det;
 
-
-        return a1 + t1 * D1;
+        Debug.Log(det);
+        
+        return t * D1 + O1;
     }
 
     private void DrawMesh(Color c, MeshFilter m)
