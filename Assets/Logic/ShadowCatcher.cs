@@ -141,15 +141,31 @@ public class ShadowCatcher : MonoBehaviour
                     Gizmos.DrawSphere(proj[i], 0.1f);
                 }
 
+
+                var intersection1 = EdgeEdgeIntersection(tri2[0], tri2[1], proj[0], proj[1]);
+
                 Gizmos.color = Color.black;
-                Gizmos.DrawLine(proj[0], proj[1]);
-                Gizmos.DrawLine(proj[1], proj[2]);
-                Gizmos.DrawLine(proj[2], proj[0]);
-
-                Debug.Log("Shadow Hits: " + onTri.Count(x => x));
-
+                Gizmos.DrawSphere(intersection1, 0.1f);
             });
         });
+    }
+
+    Vector3 EdgeEdgeIntersection(Vector3 a1, Vector3 a2, Vector3 b1, Vector3 b2)
+    {
+        // draw both edges
+        Gizmos.DrawLine(a1, a2);
+        Gizmos.DrawLine(b1, b2);
+        
+        var OC = a1 - b1;
+
+        var D1 = a2 - a1;
+        var D2 = -b2 + b1;
+
+        var det = D1.x * D2.y - D1.y * D2.x;
+        var t1 = (OC.x * D2.y - OC.y * D1.y) / det;
+
+
+        return a1 + t1 * D1;
     }
 
     private void DrawMesh(Color c, MeshFilter m)
