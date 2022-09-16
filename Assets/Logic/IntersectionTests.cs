@@ -39,53 +39,53 @@ public class IntersectionTests : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawSphere(lightTransform.position, 0.1f);
+        // Gizmos.color = Color.yellow;
+        // Gizmos.DrawSphere(lightTransform.position, 0.1f);
 
-        VerticesAction(casterFilter, (pos) =>
-        {
-            Gizmos.color = Color.blue;
-            Gizmos.DrawSphere(pos, 0.1f);
-            var dir = pos - lightTransform.position;
-            Gizmos.DrawLine(lightTransform.position, dir * 1000f);
-            // Gizmos.DrawRay(lightTransform.position, pos);
+        // VerticesAction(casterFilter, (pos) =>
+        // {
+        //     Gizmos.color = Color.blue;
+        //     Gizmos.DrawSphere(pos, 0.1f);
+        //     var dir = pos - lightTransform.position;
+        //     Gizmos.DrawLine(lightTransform.position, dir * 1000f);
+        //     // Gizmos.DrawRay(lightTransform.position, pos);
 
-            var O = pos;
-            var D = dir;
+        //     var O = pos;
+        //     var D = dir;
 
-            TrianglesAction(casterFilter, (tri) =>
-            {
-                var V0 = tri.a;
-                var V1 = tri.b;
-                var V2 = tri.c;
+        //     TrianglesAction(casterFilter, (tri) =>
+        //     {
+        //         var V0 = tri.a;
+        //         var V1 = tri.b;
+        //         var V2 = tri.c;
 
-                var E1 = V1 - V0;
-                var E2 = V2 - V0;
-                var T = O - V0;
+        //         var E1 = V1 - V0;
+        //         var E2 = V2 - V0;
+        //         var T = O - V0;
 
-                var P = Vector3.Cross(D, E2);
-                var Q = Vector3.Cross(T, E1);
+        //         var P = Vector3.Cross(D, E2);
+        //         var Q = Vector3.Cross(T, E1);
 
-                var det = Vector3.Dot(P, E1);
-                var invDet = 1f / det;
+        //         var det = Vector3.Dot(P, E1);
+        //         var invDet = 1f / det;
                 
 
-                var t = Vector3.Dot(Q, E2) * invDet;
-                var u = Vector3.Dot(P, T) * invDet;
-                var v = Vector3.Dot(Q, D) * invDet;
+        //         var t = Vector3.Dot(Q, E2) * invDet;
+        //         var u = Vector3.Dot(P, T) * invDet;
+        //         var v = Vector3.Dot(Q, D) * invDet;
 
-                Gizmos.color = Color.red;
-                Gizmos.DrawSphere(O + D * t, 0.1f);
-            });
-        });
+        //         Gizmos.color = Color.red;
+        //         Gizmos.DrawSphere(O + D * t, 0.1f);
+        //     });
+        // });
 
-        // Gizmos.color = Color.red;
-        // Gizmos.DrawLine(ray1.origin, ray1.origin + ray1.direction);
-        // Gizmos.color = Color.blue;
-        // Gizmos.DrawLine(ray2.origin, ray2.origin + ray2.direction);
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(ray1.origin, ray1.origin + ray1.direction);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(ray2.origin, ray2.origin + ray2.direction);
 
-        // Gizmos.color = Color.green;
-        // Gizmos.DrawSphere(GetIntersectionPoint(ray1, ray2), .1f);
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(GetIntersectionPoint(ray1, ray2), .1f);
     }
 
     void VerticesAction(MeshFilter meshFilter, System.Action<Vector3> action)
