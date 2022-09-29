@@ -150,7 +150,9 @@ public class ShadowToEdges : MonoBehaviour
         }
         colliderPoints.Add(colliderPoints[0]);
 
+#if UNITY_EDITOR
         if(!UnityEditor.EditorApplication.isPaused)
+        #endif
         colliders[index].points = colliderPoints.Select(p => (Vector2)p).ToArray();
         
         int CalculateDoubleConnectedTriangles(Vector3 p1, Vector3 p2) {

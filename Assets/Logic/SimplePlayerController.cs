@@ -7,11 +7,13 @@ public class SimplePlayerController : MonoBehaviour
 {
     new Rigidbody2D rigidbody;
     new BoxCollider2D collider;
+    Animator animator;
 
     private void Awake()
     {
         collider = GetComponent<BoxCollider2D>();
         rigidbody = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
     }
 
 
@@ -43,6 +45,7 @@ public class SimplePlayerController : MonoBehaviour
     {
         gravity = -(2 * jumpHeight) / (timeToJumpApex * timeToJumpApex);
         jumpVelocity = -gravity * timeToJumpApex;
+        startSquashLimit = squashLimit;
     }
 
     private void FixedUpdate()
@@ -56,8 +59,29 @@ public class SimplePlayerController : MonoBehaviour
             velocity.y = 0;
             if (Input.GetButtonDown("Jump"))
             {
+                animator.SetTrigger("Jump");
                 velocity = Vector2.up * jumpVelocity;
             }
+        }
+
+        UpdateAnimator(move);
+    }
+
+    void UpdateAnimator(Vector2 move)
+    {
+        if(move.x > 0){
+            Debug.Log("right");
+            GetComponent<SpriteRenderer>().flipX = false;
+        }
+        else if(move.x < 0){
+            Debug.Log("left");
+            GetComponent<SpriteRenderer>().flipX = true;
+        }
+        if(Math.Abs(move.x) > 0){
+            animator.SetBool("Walk", true);
+        }
+        else{
+            animator.SetBool("Walk", false);
         }
     }
 
@@ -69,7 +93,6 @@ public class SimplePlayerController : MonoBehaviour
             var penetration = Vector2.Dot(-contact.normal, offset);
             var offsetSign = new Vector2(Mathf.Sign(offset.x), Mathf.Sign(offset.y));
             penetration += Vector2.Dot(contact.normal, collider.bounds.extents * offsetSign);
-            Debug.Log(penetration);
             penetration = Mathf.Abs(penetration);
 
             if (penetration > squashLimit)
@@ -99,8 +122,14 @@ public class SimplePlayerController : MonoBehaviour
 
     private bool IsGrounded()
     {
-        var rayLenght = collider.bounds.extents.y - velocity.y * Time.fixedDeltaTime * 12;
+        var rayLenght = collider.bounds.extents.y - velocity.y * Time.fixedDeltaTime + .1f;
         Debug.DrawRay(transform.position, Vector2.down * rayLenght, Color.red);
         return Physics2D.Raycast(transform.position, Vector2.down, rayLenght, groundMask);
+    }
+
+    float startSquashLimit;
+    public void SetDisableSquashing(bool disable)
+    {
+        squashLimit = disable ? 100 : startSquashLimit;
     }
 }
